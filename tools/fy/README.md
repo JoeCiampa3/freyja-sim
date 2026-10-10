@@ -10,6 +10,7 @@ fy test [pytest options]      pytest over tests/ and checks/
 fy check [--tier gate|advisory]   the model checks on the committed model and snapshot; exit 1 on a gate failure
                               (a full run also writes checks/last_run.json, which run records quote)
 fy run <scenario>             run sim/scenarios/<scenario>.yaml; writes sim/runs/<id>/summary.json (+ raw.npz, untracked)
+fy view <scenario> [--set k=v]   watch a scenario live in the MuJoCo viewer (no record written)
 fy runs list [--scenario S]   the recorded runs
 fy runs show <id>             one run in full
 fy runs compare <idA> <idB>   the inputs that differ, then the metric deltas

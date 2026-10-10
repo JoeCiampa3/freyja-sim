@@ -8,6 +8,7 @@ CONVENTIONS.md, so it works from any directory.
     fy test [pytest options]             pytest over tests/ and checks/
     fy check [--tier gate|advisory]      the model checks on the committed model and snapshot
     fy run <scenario>                    run sim/scenarios/<scenario>.yaml and write its run record
+    fy view <scenario> [--set k=v] [--speed x]   watch a scenario live in the MuJoCo viewer
     fy runs list|show|compare|digest|envelope   read run records; digest and envelope write sim/runs/*.md
 """
 from __future__ import annotations
@@ -68,6 +69,12 @@ def run_scenario(root: Path, args: list):
     return simrun.main(args)
 
 
+def run_view(root: Path, args: list):
+    _use(root, "sim/scripts")
+    import viewscenario
+    return viewscenario.main(args)
+
+
 def run_runs(root: Path, args: list):
     _use(root, "sim/scripts")
     import runs_report
@@ -97,6 +104,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("watch", help="rebuild whenever the sheet or template changes", add_help=False)
     sub.add_parser("test", help="run the tests and checks under pytest", add_help=False)
     sub.add_parser("run", help="run a scenario and write its run record", add_help=False)
+    sub.add_parser("view", help="watch a scenario in the MuJoCo viewer", add_help=False)
     sub.add_parser("runs", help="list, show and compare run records; write the digest and envelope", add_help=False)
     chk = sub.add_parser("check", help="run the model checks")
     chk.add_argument("--tier", choices=("gate", "advisory"), help="only results of this tier")
@@ -107,7 +115,7 @@ def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     ap = build_parser()
     # build, watch, test, run and runs hand everything after the command to the tool that owns the options
-    if argv[:1] and argv[0] in ("build", "watch", "test", "run", "runs"):
+    if argv[:1] and argv[0] in ("build", "watch", "test", "run", "runs", "view"):
         command, rest = argv[0], argv[1:]
         tier = None
     else:
@@ -126,4 +134,6 @@ def main(argv=None) -> int:
         return run_scenario(root, rest)
     if command == "runs":
         return run_runs(root, rest)
+    if command == "view":
+        return run_view(root, rest)
     return run_check(root, tier)

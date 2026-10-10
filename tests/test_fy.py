@@ -83,6 +83,10 @@ class Dispatch(unittest.TestCase):
         self.assertEqual(code, 0)
         fn.assert_called_once_with(REPO, ["hold_pose"])
 
+    def test_view_passes_the_scenario_and_options_to_the_viewer(self):
+        code, fn = self.run_from_subdir(["view", "hold_pose", "--speed", "0.5"], "run_view")
+        fn.assert_called_once_with(REPO, ["hold_pose", "--speed", "0.5"])
+
     def test_runs_passes_its_subcommand_and_arguments_to_the_report_module(self):
         for argv in (["runs", "list", "--scenario", "hold_pose"], ["runs", "compare", "a", "b"], ["runs", "digest"], ["runs", "envelope"]):
             code, fn = self.run_from_subdir(argv, "run_runs")

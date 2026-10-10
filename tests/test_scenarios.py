@@ -229,5 +229,29 @@ class HoldPoseTorqueMatchesKinematics(unittest.TestCase):
         self.assertLessEqual(abs(measured - expected), max(0.05 * abs(expected), 0.2))
 
 
+class ViewerSetup(unittest.TestCase):
+    """What `fy view` does before it opens a window, run headless."""
+
+    def test_hold_pose_starts_leaned_and_stays_up_when_stepped_like_the_viewer_steps_it(self):
+        import viewscenario
+        scn = simrun.load_scenario("hold_pose")
+        model, data, ctrl = viewscenario.build(scn)
+        self.assertEqual(model.opt.timestep, 0.0002)
+        self.assertGreater(data.qpos[model.jnt_qposadr[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "ankle_pdflex_right")]], 0.04)
+        for _ in range(5000):  # 1 s
+            viewscenario.advance(model, data, ctrl, scn)
+        self.assertGreater(data.xpos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "pelvis")][2], 0.9)
+        self.assertAlmostEqual(data.time, 1.0, places=6)
+
+    def test_gantry_playback_advances_time_and_moves_the_swept_joint(self):
+        import viewscenario
+        scn = simrun.load_scenario("rom_sweep")
+        model, data, ctrl = viewscenario.build(scn)
+        for _ in range(2000):
+            viewscenario.advance(model, data, ctrl, scn)
+        self.assertAlmostEqual(data.time, 4.0, places=6)
+        self.assertNotEqual(data.qpos[model.jnt_qposadr[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "hip_fe_right")]], 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()

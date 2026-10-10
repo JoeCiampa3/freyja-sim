@@ -4,43 +4,43 @@
 
 Worst case per joint across the latest run of every scenario, with the run that drives it. Joint torque is about the model's own hinge axes (the decoupled hip architecture), not actuator torque.
 
-Scenario classes included: rom_sweep (run.20261010-1712-rom_sweep).
+Scenario classes included: rom_sweep (run.20261010-1913-rom_sweep).
 Not yet included: gait, stairs, sit-to-stand (they need reference kinematics with citable provenance, Stage 2).
 This is not a complete sizing basis: do not size an actuator from it.
-Excluded latest runs: run.20261010-1712-hold_pose (hold_pose): fell, so its numbers do not count.
+Excluded latest runs: run.20261010-1712-hold_pose (hold_pose): stale, recorded for another model.
 
 | joint | peak torque Nm | driving run | peak speed rad/s | driving run | peak power W | driving run | ROM used deg | limit deg |
 |---|---|---|---|---|---|---|---|---|
-| ankle_ie_left | 0.11 | run.20261010-1712-rom_sweep | 0.150 | run.20261010-1712-rom_sweep | 0.01 | run.20261010-1712-rom_sweep | -19.0..35.8 | -19.2..36.2 |
-| ankle_ie_right | 0.11 | run.20261010-1712-rom_sweep | 0.150 | run.20261010-1712-rom_sweep | 0.01 | run.20261010-1712-rom_sweep | -19.0..35.8 | -19.2..36.2 |
-| ankle_pdflex_left | 0.35 | run.20261010-1712-rom_sweep | 0.236 | run.20261010-1712-rom_sweep | 0.08 | run.20261010-1712-rom_sweep | -61.5..24.8 | -62.1..25.0 |
-| ankle_pdflex_right | 0.35 | run.20261010-1712-rom_sweep | 0.236 | run.20261010-1712-rom_sweep | 0.08 | run.20261010-1712-rom_sweep | -61.5..24.8 | -62.1..25.0 |
+| ankle_ie_left | 0.11 | run.20261010-1913-rom_sweep | 0.150 | run.20261010-1913-rom_sweep | 0.01 | run.20261010-1913-rom_sweep | -19.0..35.8 | -19.2..36.2 |
+| ankle_ie_right | 0.11 | run.20261010-1913-rom_sweep | 0.150 | run.20261010-1913-rom_sweep | 0.01 | run.20261010-1913-rom_sweep | -19.0..35.8 | -19.2..36.2 |
+| ankle_pdflex_left | 0.35 | run.20261010-1913-rom_sweep | 0.236 | run.20261010-1913-rom_sweep | 0.08 | run.20261010-1913-rom_sweep | -61.5..24.8 | -62.1..25.0 |
+| ankle_pdflex_right | 0.35 | run.20261010-1913-rom_sweep | 0.236 | run.20261010-1913-rom_sweep | 0.08 | run.20261010-1913-rom_sweep | -61.5..24.8 | -62.1..25.0 |
 | cj_ax | no data | - | no data | - | no data | - | - | unlimited |
 | cj_fe | no data | - | no data | - | no data | - | - | unlimited |
 | cj_lat | no data | - | no data | - | no data | - | - | unlimited |
-| elbow_left | 1.80 | run.20261010-1712-rom_sweep | 0.420 | run.20261010-1712-rom_sweep | 0.75 | run.20261010-1712-rom_sweep | -4.7..148.5 | -4.7..150.0 |
-| elbow_right | 1.80 | run.20261010-1712-rom_sweep | 0.420 | run.20261010-1712-rom_sweep | 0.75 | run.20261010-1712-rom_sweep | -4.7..148.5 | -4.7..150.0 |
-| hip_aa_left | 23.29 | run.20261010-1712-rom_sweep | 0.179 | run.20261010-1712-rom_sweep | 2.85 | run.20261010-1712-rom_sweep | -40.1..25.3 | -40.5..25.6 |
-| hip_aa_right | 23.29 | run.20261010-1712-rom_sweep | 0.179 | run.20261010-1712-rom_sweep | 2.85 | run.20261010-1712-rom_sweep | -40.1..25.3 | -40.5..25.6 |
-| hip_fe_left | 35.46 | run.20261010-1712-rom_sweep | 0.412 | run.20261010-1712-rom_sweep | 13.85 | run.20261010-1712-rom_sweep | -17.9..132.5 | -18.1..133.8 |
-| hip_fe_right | 35.46 | run.20261010-1712-rom_sweep | 0.412 | run.20261010-1712-rom_sweep | 13.85 | run.20261010-1712-rom_sweep | -17.9..132.5 | -18.1..133.8 |
-| hip_ier_left | 0.01 | run.20261010-1712-rom_sweep | 0.241 | run.20261010-1712-rom_sweep | 0.00 | run.20261010-1712-rom_sweep | -43.8..44.0 | -44.2..44.4 |
-| hip_ier_right | 0.01 | run.20261010-1712-rom_sweep | 0.241 | run.20261010-1712-rom_sweep | 0.00 | run.20261010-1712-rom_sweep | -43.8..44.0 | -44.2..44.4 |
-| knee_left | 7.54 | run.20261010-1712-rom_sweep | 0.389 | run.20261010-1712-rom_sweep | 2.88 | run.20261010-1712-rom_sweep | -1.6..140.5 | -1.6..141.9 |
-| knee_right | 7.54 | run.20261010-1712-rom_sweep | 0.389 | run.20261010-1712-rom_sweep | 2.88 | run.20261010-1712-rom_sweep | -1.6..140.5 | -1.6..141.9 |
+| elbow_left | 1.80 | run.20261010-1913-rom_sweep | 0.420 | run.20261010-1913-rom_sweep | 0.75 | run.20261010-1913-rom_sweep | -4.7..148.5 | -4.7..150.0 |
+| elbow_right | 1.80 | run.20261010-1913-rom_sweep | 0.420 | run.20261010-1913-rom_sweep | 0.75 | run.20261010-1913-rom_sweep | -4.7..148.5 | -4.7..150.0 |
+| hip_aa_left | 23.29 | run.20261010-1913-rom_sweep | 0.179 | run.20261010-1913-rom_sweep | 2.85 | run.20261010-1913-rom_sweep | -40.1..25.3 | -40.5..25.6 |
+| hip_aa_right | 23.29 | run.20261010-1913-rom_sweep | 0.179 | run.20261010-1913-rom_sweep | 2.85 | run.20261010-1913-rom_sweep | -40.1..25.3 | -40.5..25.6 |
+| hip_fe_left | 35.46 | run.20261010-1913-rom_sweep | 0.412 | run.20261010-1913-rom_sweep | 13.85 | run.20261010-1913-rom_sweep | -17.9..132.5 | -18.1..133.8 |
+| hip_fe_right | 35.46 | run.20261010-1913-rom_sweep | 0.412 | run.20261010-1913-rom_sweep | 13.85 | run.20261010-1913-rom_sweep | -17.9..132.5 | -18.1..133.8 |
+| hip_ier_left | 0.01 | run.20261010-1913-rom_sweep | 0.241 | run.20261010-1913-rom_sweep | 0.00 | run.20261010-1913-rom_sweep | -43.8..44.0 | -44.2..44.4 |
+| hip_ier_right | 0.01 | run.20261010-1913-rom_sweep | 0.241 | run.20261010-1913-rom_sweep | 0.00 | run.20261010-1913-rom_sweep | -43.8..44.0 | -44.2..44.4 |
+| knee_left | 7.54 | run.20261010-1913-rom_sweep | 0.389 | run.20261010-1913-rom_sweep | 2.88 | run.20261010-1913-rom_sweep | -1.6..140.5 | -1.6..141.9 |
+| knee_right | 7.54 | run.20261010-1913-rom_sweep | 0.389 | run.20261010-1913-rom_sweep | 2.88 | run.20261010-1913-rom_sweep | -1.6..140.5 | -1.6..141.9 |
 | lsj_ax | no data | - | no data | - | no data | - | - | unlimited |
 | lsj_fe | no data | - | no data | - | no data | - | - | unlimited |
 | lsj_lat | no data | - | no data | - | no data | - | - | unlimited |
 | shoulder_aa_left | no data | - | no data | - | no data | - | - | unlimited |
 | shoulder_aa_right | no data | - | no data | - | no data | - | - | unlimited |
-| shoulder_fe_left | 6.14 | run.20261010-1712-rom_sweep | 0.623 | run.20261010-1712-rom_sweep | 3.81 | run.20261010-1712-rom_sweep | -56.7..170.3 | -57.3..172.0 |
-| shoulder_fe_right | 6.14 | run.20261010-1712-rom_sweep | 0.623 | run.20261010-1712-rom_sweep | 3.81 | run.20261010-1712-rom_sweep | -56.7..170.3 | -57.3..172.0 |
+| shoulder_fe_left | 6.14 | run.20261010-1913-rom_sweep | 0.623 | run.20261010-1913-rom_sweep | 3.81 | run.20261010-1913-rom_sweep | -56.7..170.3 | -57.3..172.0 |
+| shoulder_fe_right | 6.14 | run.20261010-1913-rom_sweep | 0.623 | run.20261010-1913-rom_sweep | 3.81 | run.20261010-1913-rom_sweep | -56.7..170.3 | -57.3..172.0 |
 | shoulder_ier_left | no data | - | no data | - | no data | - | - | unlimited |
 | shoulder_ier_right | no data | - | no data | - | no data | - | - | unlimited |
 | tj_ax | no data | - | no data | - | no data | - | - | unlimited |
 | tj_fe | no data | - | no data | - | no data | - | - | unlimited |
 | tj_lat | no data | - | no data | - | no data | - | - | unlimited |
-| wrist_left | 0.17 | run.20261010-1712-rom_sweep | 0.404 | run.20261010-1712-rom_sweep | 0.05 | run.20261010-1712-rom_sweep | -73.3..74.1 | -74.0..74.8 |
-| wrist_right | 0.17 | run.20261010-1712-rom_sweep | 0.404 | run.20261010-1712-rom_sweep | 0.05 | run.20261010-1712-rom_sweep | -73.3..74.1 | -74.0..74.8 |
+| wrist_left | 0.17 | run.20261010-1913-rom_sweep | 0.404 | run.20261010-1913-rom_sweep | 0.05 | run.20261010-1913-rom_sweep | -73.3..74.1 | -74.0..74.8 |
+| wrist_right | 0.17 | run.20261010-1913-rom_sweep | 0.404 | run.20261010-1913-rom_sweep | 0.05 | run.20261010-1913-rom_sweep | -73.3..74.1 | -74.0..74.8 |
 
 Joints with no ROM data (unlimited, so never swept; each row reflects the standing hold only, or no data): cj_ax, cj_fe, cj_lat, lsj_ax, lsj_fe, lsj_lat, shoulder_aa_left, shoulder_aa_right, shoulder_ier_left, shoulder_ier_right, tj_ax, tj_fe, tj_lat.

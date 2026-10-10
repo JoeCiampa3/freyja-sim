@@ -6,7 +6,7 @@ Latest run of each scenario, with the change against the run before it. Joint to
 
 ## hold_pose
 
-Latest: run.20261010-1712-hold_pose, fell, ground, commit 74bbfbf, snapshot 4db751576eb9, model 7d0bdd7134f2
+Latest: run.20261010-1712-hold_pose, fell, ground, commit 74bbfbf, snapshot 4db751576eb9, model 7d0bdd7134f2  STALE: the committed model has changed since this run
 Window 2.0..3.0 s, duration 1.355 s, timestep 0.0002 s, runs recorded 1
 Previous run: none.
 
@@ -24,30 +24,30 @@ Checks at run start: passed check.mjcf.com_lateral, check.mjcf.floor_contact, ch
 
 ## rom_sweep
 
-Latest: run.20261010-1712-rom_sweep, completed, gantry, commit 74bbfbf, snapshot 4db751576eb9, model 7d0bdd7134f2
-Window 0.0..360.0 s, duration 360.000 s, timestep 0.002 s, runs recorded 1
-Previous run: none.
+Latest: run.20261010-1913-rom_sweep, completed, gantry, commit c6cc844, snapshot 4db751576eb9, model 8446bc7e8749
+Window 0.0..360.0 s, duration 360.000 s, timestep 0.002 s, runs recorded 2
+Previous run: run.20261010-1712-rom_sweep, completed; inputs that differ: commit, model
 
 | joint | peak torque Nm | rms torque Nm | peak speed rad/s | peak power W | ROM used deg | limit deg | limit hit | d peak torque |
 |---|---|---|---|---|---|---|---|---|
-| ankle_ie_left | 0.11 | 0.07 | 0.150 | 0.01 | -19.0..35.8 | -19.2..36.2 | 0.000 | - |
-| ankle_ie_right | 0.11 | 0.07 | 0.150 | 0.01 | -19.0..35.8 | -19.2..36.2 | 0.000 | - |
-| ankle_pdflex_left | 0.35 | 0.23 | 0.236 | 0.08 | -61.5..24.8 | -62.1..25.0 | 0.000 | - |
-| ankle_pdflex_right | 0.35 | 0.23 | 0.236 | 0.08 | -61.5..24.8 | -62.1..25.0 | 0.000 | - |
-| elbow_left | 1.80 | 1.20 | 0.420 | 0.75 | -4.7..148.5 | -4.7..150.0 | 0.007 | - |
-| elbow_right | 1.80 | 1.20 | 0.420 | 0.75 | -4.7..148.5 | -4.7..150.0 | 0.007 | - |
-| hip_aa_left | 23.29 | 13.59 | 0.179 | 2.85 | -40.1..25.3 | -40.5..25.6 | 0.000 | - |
-| hip_aa_right | 23.29 | 13.59 | 0.179 | 2.85 | -40.1..25.3 | -40.5..25.6 | 0.000 | - |
-| hip_fe_left | 35.46 | 24.37 | 0.412 | 13.85 | -17.9..132.5 | -18.1..133.8 | 0.000 | - |
-| hip_fe_right | 35.46 | 24.37 | 0.412 | 13.85 | -17.9..132.5 | -18.1..133.8 | 0.000 | - |
-| hip_ier_left | 0.01 | 0.01 | 0.241 | 0.00 | -43.8..44.0 | -44.2..44.4 | 0.000 | - |
-| hip_ier_right | 0.01 | 0.01 | 0.241 | 0.00 | -43.8..44.0 | -44.2..44.4 | 0.000 | - |
-| knee_left | 7.54 | 5.25 | 0.389 | 2.88 | -1.6..140.5 | -1.6..141.9 | 0.009 | - |
-| knee_right | 7.54 | 5.25 | 0.389 | 2.88 | -1.6..140.5 | -1.6..141.9 | 0.009 | - |
-| shoulder_fe_left | 6.14 | 3.85 | 0.623 | 3.81 | -56.7..170.3 | -57.3..172.0 | 0.000 | - |
-| shoulder_fe_right | 6.14 | 3.85 | 0.623 | 3.81 | -56.7..170.3 | -57.3..172.0 | 0.000 | - |
-| wrist_left | 0.17 | 0.12 | 0.404 | 0.05 | -73.3..74.1 | -74.0..74.8 | 0.000 | - |
-| wrist_right | 0.17 | 0.12 | 0.404 | 0.05 | -73.3..74.1 | -74.0..74.8 | 0.000 | - |
+| ankle_ie_left | 0.11 | 0.07 | 0.150 | 0.01 | -19.0..35.8 | -19.2..36.2 | 0.000 | = |
+| ankle_ie_right | 0.11 | 0.07 | 0.150 | 0.01 | -19.0..35.8 | -19.2..36.2 | 0.000 | = |
+| ankle_pdflex_left | 0.35 | 0.23 | 0.236 | 0.08 | -61.5..24.8 | -62.1..25.0 | 0.000 | = |
+| ankle_pdflex_right | 0.35 | 0.23 | 0.236 | 0.08 | -61.5..24.8 | -62.1..25.0 | 0.000 | = |
+| elbow_left | 1.80 | 1.20 | 0.420 | 0.75 | -4.7..148.5 | -4.7..150.0 | 0.007 | = |
+| elbow_right | 1.80 | 1.20 | 0.420 | 0.75 | -4.7..148.5 | -4.7..150.0 | 0.007 | = |
+| hip_aa_left | 23.29 | 13.59 | 0.179 | 2.85 | -40.1..25.3 | -40.5..25.6 | 0.000 | = |
+| hip_aa_right | 23.29 | 13.59 | 0.179 | 2.85 | -40.1..25.3 | -40.5..25.6 | 0.000 | = |
+| hip_fe_left | 35.46 | 24.37 | 0.412 | 13.85 | -17.9..132.5 | -18.1..133.8 | 0.000 | = |
+| hip_fe_right | 35.46 | 24.37 | 0.412 | 13.85 | -17.9..132.5 | -18.1..133.8 | 0.000 | = |
+| hip_ier_left | 0.01 | 0.01 | 0.241 | 0.00 | -43.8..44.0 | -44.2..44.4 | 0.000 | = |
+| hip_ier_right | 0.01 | 0.01 | 0.241 | 0.00 | -43.8..44.0 | -44.2..44.4 | 0.000 | = |
+| knee_left | 7.54 | 5.25 | 0.389 | 2.88 | -1.6..140.5 | -1.6..141.9 | 0.009 | = |
+| knee_right | 7.54 | 5.25 | 0.389 | 2.88 | -1.6..140.5 | -1.6..141.9 | 0.009 | = |
+| shoulder_fe_left | 6.14 | 3.85 | 0.623 | 3.81 | -56.7..170.3 | -57.3..172.0 | 0.000 | = |
+| shoulder_fe_right | 6.14 | 3.85 | 0.623 | 3.81 | -56.7..170.3 | -57.3..172.0 | 0.000 | = |
+| wrist_left | 0.17 | 0.12 | 0.404 | 0.05 | -73.3..74.1 | -74.0..74.8 | 0.000 | = |
+| wrist_right | 0.17 | 0.12 | 0.404 | 0.05 | -73.3..74.1 | -74.0..74.8 | 0.000 | = |
 
 Skipped: cj_ax (unlimited), cj_fe (unlimited), cj_lat (unlimited), lsj_ax (unlimited), lsj_fe (unlimited), lsj_lat (unlimited), shoulder_aa_left (unlimited), shoulder_aa_right (unlimited), shoulder_ier_left (unlimited), shoulder_ier_right (unlimited), tj_ax (unlimited), tj_fe (unlimited), tj_lat (unlimited)
 

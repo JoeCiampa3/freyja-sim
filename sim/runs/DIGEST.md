@@ -6,21 +6,64 @@ Latest run of each scenario, with the change against the run before it. Joint to
 
 ## hold_pose
 
-Latest: run.20261010-1712-hold_pose, fell, ground, commit 74bbfbf, snapshot 4db751576eb9, model 7d0bdd7134f2  STALE: the committed model has changed since this run
-Window 2.0..3.0 s, duration 1.355 s, timestep 0.0002 s, runs recorded 1
-Previous run: none.
+Latest: run.20261010-1921-hold_pose, completed, ground, commit 082ba84, snapshot 4db751576eb9, model 8446bc7e8749
+Window 7.0..8.0 s, duration 8.000 s, timestep 0.0002 s, runs recorded 2
+Previous run: run.20261010-1712-hold_pose, fell; inputs that differ: commit, model, scenario parameters
 
-No joints measured: the run ended (fell) before its measurement window.
+| joint | peak torque Nm | rms torque Nm | peak speed rad/s | peak power W | ROM used deg | limit deg | limit hit | d peak torque |
+|---|---|---|---|---|---|---|---|---|
+| ankle_ie_left | 0.12 | 0.12 | 0.000 | 0.00 | -0.0..-0.0 | -19.2..36.2 | 0.000 | - |
+| ankle_ie_right | 0.14 | 0.14 | 0.000 | 0.00 | -0.0..-0.0 | -19.2..36.2 | 0.000 | - |
+| ankle_pdflex_left | 4.15 | 3.81 | 0.001 | 0.00 | 2.5..2.5 | -62.1..25.0 | 0.000 | - |
+| ankle_pdflex_right | 4.12 | 3.79 | 0.001 | 0.00 | 2.5..2.5 | -62.1..25.0 | 0.000 | - |
+| cj_ax | 0.00 | 0.00 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| cj_fe | 0.41 | 0.39 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| cj_lat | 0.01 | 0.01 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| elbow_left | 0.01 | 0.00 | 0.000 | 0.00 | -0.0..0.0 | -4.7..150.0 | 0.000 | - |
+| elbow_right | 0.01 | 0.00 | 0.000 | 0.00 | -0.0..0.0 | -4.7..150.0 | 0.000 | - |
+| hip_aa_left | 0.64 | 0.64 | 0.000 | 0.00 | 0.0..0.0 | -40.5..25.6 | 0.000 | - |
+| hip_aa_right | 0.63 | 0.63 | 0.000 | 0.00 | 0.0..0.0 | -40.5..25.6 | 0.000 | - |
+| hip_fe_left | 7.92 | 7.82 | 0.000 | 0.00 | -0.2..-0.2 | -18.1..133.8 | 0.000 | - |
+| hip_fe_right | 7.92 | 7.83 | 0.000 | 0.00 | -0.2..-0.2 | -18.1..133.8 | 0.000 | - |
+| hip_ier_left | 0.02 | 0.02 | 0.000 | 0.00 | 0.0..0.0 | -44.2..44.4 | 0.000 | - |
+| hip_ier_right | 0.02 | 0.02 | 0.000 | 0.00 | 0.0..0.0 | -44.2..44.4 | 0.000 | - |
+| knee_left | 7.77 | 7.56 | 0.001 | 0.00 | 0.2..0.2 | -1.6..141.9 | 0.000 | - |
+| knee_right | 7.76 | 7.54 | 0.001 | 0.00 | 0.2..0.2 | -1.6..141.9 | 0.000 | - |
+| lsj_ax | 0.00 | 0.00 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| lsj_fe | 5.27 | 5.04 | 0.000 | 0.00 | 0.1..0.2 | - | - | - |
+| lsj_lat | 0.09 | 0.09 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| shoulder_aa_left | 0.04 | 0.04 | 0.000 | 0.00 | -0.0..-0.0 | - | - | - |
+| shoulder_aa_right | 0.05 | 0.05 | 0.000 | 0.00 | -0.0..-0.0 | - | - | - |
+| shoulder_fe_left | 0.40 | 0.38 | 0.000 | 0.00 | 0.0..0.0 | -57.3..172.0 | 0.000 | - |
+| shoulder_fe_right | 0.40 | 0.38 | 0.000 | 0.00 | 0.0..0.0 | -57.3..172.0 | 0.000 | - |
+| shoulder_ier_left | 0.00 | 0.00 | 0.000 | 0.00 | -0.0..-0.0 | - | - | - |
+| shoulder_ier_right | 0.00 | 0.00 | 0.000 | 0.00 | -0.0..-0.0 | - | - | - |
+| tj_ax | 0.00 | 0.00 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| tj_fe | 3.31 | 3.17 | 0.000 | 0.00 | 0.1..0.1 | - | - | - |
+| tj_lat | 0.07 | 0.07 | 0.000 | 0.00 | 0.0..0.0 | - | - | - |
+| wrist_left | 0.01 | 0.01 | 0.000 | 0.00 | 0.0..0.0 | -74.0..74.8 | 0.000 | - |
+| wrist_right | 0.01 | 0.01 | 0.000 | 0.00 | 0.0..0.0 | -74.0..74.8 | 0.000 | - |
 
-Balance: support margin min n/a (not measured)
+Contact foot_left: peak normal force 318.0 N, peak friction ratio 0.001
+Contact foot_right: peak normal force 319.1 N, peak friction ratio 0.001
+Balance: support margin min 0.0295 m
+Pose: com_x_rel_ankle_m 0.0; lean angle 2.608 deg; window-mean CoM offset -10.9 mm; sag -10.9 mm
 - body_weight_n: 637.012
-- ended_at_s: 1.3548
-- inverse_closure_max_joint_abs_nm: 3.79696e-13
+- com_offset_commanded_m: 0
+- com_offset_initial_m: 6.93889e-18
+- com_offset_window_mean_m: -0.0108677
+- com_sag_m: -0.0108677
+- force_closure_ratio: 1
+- inverse_closure_max_joint_abs_nm: 6.58584e-13
 - inverse_closure_tolerance_rel: 1e-09
-- penetration_max_run_m: 0.00259176
-- support_margin_first_step_m: 0.00128702
+- lean_angle_deg: 2.60769
+- normal_force_total_peak_n: 637.036
+- penetration_max_m: 0.00224324
+- penetration_max_run_m: 0.00255715
+- support_margin_first_step_m: None
+- vertical_force_mean_n: 637.015
 
-Checks at run start: passed check.mjcf.com_lateral, check.mjcf.floor_contact, check.mjcf.joint_signs, check.mjcf.mass_closure, check.mjcf.mass_closure.target, check.mjcf.mirror, check.mjcf.stature_chain; failed check.mjcf.com_pct_stature; waived none; status current
+Checks at run start: passed check.mjcf.com_lateral, check.mjcf.floor_contact, check.mjcf.joint_signs, check.mjcf.mass_closure, check.mjcf.mass_closure.target, check.mjcf.mirror, check.mjcf.stature_chain, check.sim.rom_reachable; failed check.mjcf.com_pct_stature; waived none; status current
 
 ## rom_sweep
 

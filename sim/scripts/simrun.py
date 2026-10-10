@@ -471,7 +471,7 @@ def main(argv=None) -> int:
     print(f"{rec['run_id']}: {rec['outcome']} ({rec['duration_s']:.3f} s simulated, {len(rec['joints'])} joints measured)")
     print(f"  {result.summary_path}")
     for name, value in rec.get("diagnostics", {}).items():
-        print(f"  {name} = {value:.6g}")
+        print(f"  {name} = {value:.6g}" if value is not None else f"  {name} = n/a")
     return 0 if rec["outcome"] == "completed" else 1
 
 

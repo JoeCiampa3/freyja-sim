@@ -2,10 +2,9 @@
 Stage 1 T3: the first two scenarios, run on the committed model (read-only: runs go to a temporary directory).
 
 rom_sweep is checked against independent numbers (the model's own range, the model's gravity bias, the left/right
-mirror). hold_pose carries the brief's two acceptance tests. The committed model does not stand: the neutral CoM sits
-1.29 mm in front of the heel edge, so the hold topples backward at about 1.35 s, before its measurement window. That
-is a finding, not a bug to tune away (CONVENTIONS section 9.5), so the two acceptance tests are strict xfails that
-carry the measured numbers: they start failing the day the model, and not the controller, changes.
+mirror). hold_pose carries the brief's acceptance tests (force closure, mirror torques) and an independent statics
+check. The neutral pose has no equilibrium (CoM 1.29 mm in front of the heel edge); hold_pose starts from the solved
+lean pose instead (Stage 1b).
 
 Run from the repo root:
     python -m pytest tests
@@ -26,6 +25,7 @@ sys.path.insert(0, str(REPO / "checks"))
 
 import mujoco  # noqa: E402
 
+import leanpose  # noqa: E402
 import metrics  # noqa: E402
 import runrecord as rr  # noqa: E402
 import simrun  # noqa: E402
@@ -124,11 +124,19 @@ class RomSweep(unittest.TestCase):
         self.assertEqual((result.status, result.measured["joints_checked"]), (checklib.PASS, 18), result.message)
 
 
+def run_hold(tmpdir, *sets):
+    scn = simrun.apply_overrides(simrun.load_scenario("hold_pose"), list(sets))
+    return simrun.run_scenario(scn, runs_dir=tmpdir, now=NOW)
+
+
 class HoldPose(unittest.TestCase):
+    """The neutral pose has no static equilibrium (CoM 1.29 mm in front of the heel edge, so the Stage 1 hold fell at
+    1.355 s). hold_pose now starts from the solved lean pose (Stage 1b), which does stand."""
+
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.result = simrun.run_scenario(simrun.load_scenario("hold_pose"), runs_dir=cls.tmp.name, now=NOW)
+        cls.result = run_hold(cls.tmp.name)
         cls.rec = cls.result.record
         cls.diag = cls.rec["diagnostics"]
 
@@ -136,13 +144,16 @@ class HoldPose(unittest.TestCase):
     def tearDownClass(cls):
         cls.tmp.cleanup()
 
-    def test_record_validates_and_reports_the_standing_numbers_even_when_the_run_falls(self):
+    def test_stands_to_the_end_with_the_standing_numbers_recorded(self):
         rr.validate(self.rec)
-        self.assertEqual(self.rec["support"], "ground")
+        self.assertEqual((self.rec["support"], self.rec["outcome"]), ("ground", "completed"))
         self.assertEqual(self.rec["scenario"]["params"]["options"]["timestep_s"], 0.0002)
-        for key in ("body_weight_n", "support_margin_first_step_m", "penetration_max_run_m"):
-            self.assertIn(key, self.diag)
+        self.assertEqual(self.rec["scenario"]["params"]["pose"], {"com_x_rel_ankle_m": 0.0})
         self.assertAlmostEqual(self.diag["body_weight_n"], 64.935 * 9.81, places=6)
+        self.assertGreater(self.rec["balance"]["support_margin_min_m"], 0.0)
+        for key in ("lean_angle_deg", "com_offset_commanded_m", "com_offset_window_mean_m", "com_sag_m"):
+            self.assertIn(key, self.diag)
+        self.assertAlmostEqual(self.diag["lean_angle_deg"], 2.6077, places=3)
 
     def test_inverse_dynamics_joint_rows_recover_the_applied_torque_with_contacts_too(self):
         # forward dynamics, then mj_inverse on the same state and acceleration: the joint rows close to round-off,
@@ -153,25 +164,69 @@ class HoldPose(unittest.TestCase):
     def test_pd_gains_are_recorded(self):
         self.assertEqual(self.rec["scenario"]["params"]["params"]["kp_nm_per_rad"], 2000.0)
 
-    @pytest.mark.xfail(strict=True, raises=AssertionError,
-                       reason="FINDING: hold_pose topples backward at 1.355 s (before its 2-3 s window); neutral CoM is 1.29 mm "
-                              "in front of the heel edge, so there is no standing equilibrium to measure")
     def test_mean_vertical_contact_force_equals_body_weight_within_half_a_percent(self):
-        self.assertEqual(self.rec["outcome"], "completed")
         ratio = self.diag["vertical_force_mean_n"] / self.diag["body_weight_n"]
         self.assertAlmostEqual(ratio, 1.0, delta=FORCE_CLOSURE_REL)
 
-    @pytest.mark.xfail(strict=True, raises=AssertionError,
-                       reason="FINDING: the run falls before its measurement window, so there are no joint torques to compare")
-    def test_mirror_image_joints_carry_equal_torques_within_2_percent(self):
-        # mirror rule: axes (ax, ay, az) -> (-ax, ay, -az), so a mirror-symmetric load gives the SAME scalar torque on
-        # each side (the world-frame torque vectors are the ones that are mirror images, with opposite x and z)
-        self.assertEqual(self.rec["outcome"], "completed")
+    def test_mirror_image_joints_carry_the_same_scalar_torque_within_2_percent(self):
+        # mirror rule: axes (ax, ay, az) -> (-ax, ay, -az), which already encodes the sign: a mirror-symmetric load gives
+        # the same scalar torque on each side (only the world-frame torque vectors are mirror images)
         joints = self.rec["joints"]
         self.assertTrue(joints)
         for right, left in pairs(joints):
             a, b = joints[right]["torque_rms_nm"], joints[left]["torque_rms_nm"]
-            self.assertLessEqual(abs(a - b), max(MIRROR_TORQUE_REL * max(a, b), MIRROR_TORQUE_FLOOR_NM), right)
+            self.assertLessEqual(abs(a - b), max(MIRROR_TORQUE_REL * max(a, b), MIRROR_TORQUE_FLOOR_NM), (right, a, b))
+
+    def test_no_joint_ends_near_a_limit(self):
+        for name, j in self.rec["joints"].items():
+            self.assertEqual(j["limit_hit_fraction"] or 0.0, 0.0, name)
+
+
+class HoldPoseTorqueMatchesKinematics(unittest.TestCase):
+    """Independent of the controller: the summed ankle torque is fixed by statics. Moment balance of each foot about its
+    ankle gives  tau = axis_y * (W d - g * sum(m_foot * x_foot_com))  summed over both feet, where d is the window-mean
+    CoM offset from the ankle (kinematics) and the second term is the weight of the two feet (m g x about the ankle).
+    The torque comes from the applied torques, d from the motion, so the two paths do not share a number. Without the
+    foot-weight term the plain 'W d' misses by about 5.5% (0.6 N m of 11.1) at this target, which is the foot weight."""
+
+    TARGET = 0.02
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.result = run_hold(cls.tmp.name, f"pose.com_x_rel_ankle_m={cls.TARGET}")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_override_is_recorded_and_the_body_stands(self):
+        rec = self.result.record
+        self.assertEqual(rec["scenario"]["params"]["pose"]["com_x_rel_ankle_m"], self.TARGET)
+        self.assertEqual(rec["outcome"], "completed")
+        self.assertAlmostEqual(rec["diagnostics"]["com_offset_commanded_m"], self.TARGET)
+
+    def test_summed_ankle_torque_equals_weight_times_the_measured_com_offset(self):
+        rec, raw = self.result.record, self.result.raw
+        names = list(raw["joint_names"])
+        i0, i1 = int(round(7.0 / rec["timestep_s"])), int(round(8.0 / rec["timestep_s"]))
+        measured = float(raw["tau"][i0:i1][:, [names.index("ankle_pdflex_right"), names.index("ankle_pdflex_left")]].sum(axis=1).mean())
+        d = float(raw["com_rel_ankle_x_m"][i0:i1].mean())
+        model = mujoco.MjModel.from_xml_path(str(simrun.MODEL_FILE))
+        lean = leanpose.solve_lean(model, self.TARGET, {"foot_right": "ankle_pdflex_right", "foot_left": "ankle_pdflex_left"})
+        data = mujoco.MjData(model)
+        data.qpos[:] = lean.qpos
+        mujoco.mj_forward(model, data)
+        g = abs(model.opt.gravity[2])
+        weight = float(model.body_mass.sum() * g)
+        foot = 0.0
+        for side in ("right", "left"):
+            b = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"foot_{side}")
+            foot += model.body_mass[b] * g * (data.xipos[b][0] - data.xpos[b][0])
+        axis_y = model.jnt_axis[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "ankle_pdflex_right")][1]
+        expected = axis_y * (weight * d - foot)
+        print(f"summed ankle torque {measured:.3f} N m, from kinematics {expected:.3f} N m (plain W d: {axis_y * weight * d:.3f}), d = {d * 1000:.2f} mm")
+        self.assertLessEqual(abs(measured - expected), max(0.05 * abs(expected), 0.2))
 
 
 if __name__ == "__main__":

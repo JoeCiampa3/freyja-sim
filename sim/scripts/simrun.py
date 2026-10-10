@@ -35,6 +35,7 @@ from pathlib import Path
 
 import numpy as np
 
+import leanpose
 import metrics
 import runrecord
 
@@ -92,6 +93,25 @@ def check_scenario(s: dict) -> dict:
     if integrator not in INTEGRATORS:
         raise ScenarioError(f"integrator '{integrator}' must be one of {sorted(INTEGRATORS)}")
     return s
+
+
+def apply_overrides(scn: dict, sets: list) -> dict:
+    """A copy of the scenario with `key.sub=value` overrides applied; the value is read as YAML (0.02, true, text)."""
+    import copy
+    import yaml
+    out = copy.deepcopy(scn)
+    for item in sets or []:
+        if "=" not in item:
+            raise ScenarioError(f"--set expects key=value, got '{item}'")
+        path, _, raw = item.partition("=")
+        node = out
+        keys = path.split(".")
+        for k in keys[:-1]:
+            node = node.setdefault(k, {})
+            if not isinstance(node, dict):
+                raise ScenarioError(f"--set {path}: '{k}' is not a section")
+        node[keys[-1]] = yaml.safe_load(raw)
+    return out
 
 
 def load_scenario(name: str, scenarios_dir=None) -> dict:
@@ -220,6 +240,24 @@ def _floor_contacts(mj, model, data, floor_geoms, foot_of_body):
     return out
 
 
+def _apply_pose(mj, model, data, pose):
+    """Set the solved lean pose (CoM over a chosen point relative to the ankle) as the starting state."""
+    feet = {}
+    for side in ("right", "left"):
+        if _body_id(model, f"foot_{side}") is not None and mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, f"ankle_pdflex_{side}") >= 0:
+            feet[f"foot_{side}"] = f"ankle_pdflex_{side}"
+    if not feet:
+        raise ScenarioError("a pose needs foot_right/foot_left bodies with ankle_pdflex joints")
+    try:
+        lean = leanpose.solve_lean(model, float(pose["com_x_rel_ankle_m"]), feet)
+    except (leanpose.LeanError, KeyError) as e:
+        raise ScenarioError(f"pose: {e}") from e
+    data.qpos[:] = lean.qpos
+    data.qvel[:] = 0.0
+    mj.mj_forward(model, data)
+    return lean
+
+
 def _simulate_forward(mj, model, data, ctrl, scn, hinges, verify):
     dt_ = model.opt.timestep
     n = int(round(scn["duration_s"] / dt_))
@@ -235,6 +273,7 @@ def _simulate_forward(mj, model, data, ctrl, scn, hinges, verify):
     normal, tangential = np.zeros((n, len(keys))), np.zeros((n, len(keys)))
     total_normal, vertical = np.zeros(n), np.zeros(n)
     penetration, margin, com = np.zeros(n), np.full(n, np.nan), np.zeros((n, 3))
+    ankle_x = np.zeros(n)
     fallen = _fall_monitor(model, data, scn)
     scratch = mj.MjData(model) if verify else None
     closure_err = 0.0
@@ -252,6 +291,7 @@ def _simulate_forward(mj, model, data, ctrl, scn, hinges, verify):
             mj.mj_inverse(model, scratch)
             closure_err = max(closure_err, float(np.max(np.abs(scratch.qfrc_inverse[dofs] - data.qfrc_applied[dofs]))))
         com[k] = data.subtree_com[0]
+        ankle_x[k] = data.xpos[feet[keys[0]]][0] if keys else 0.0
         mj.mj_step2(model, data)
         if _diverged(mj, data, (k + 1) * dt_):
             outcome, done = "diverged", k + 1
@@ -272,7 +312,7 @@ def _simulate_forward(mj, model, data, ctrl, scn, hinges, verify):
             break
     raw = {"t": t[:done], "q": q[:done], "qd": qd[:done], "tau": tau[:done], "normal_n": normal[:done],
            "tangential_n": tangential[:done], "total_normal_n": total_normal[:done], "vertical_n": vertical[:done],
-           "penetration_m": penetration[:done], "support_margin_m": margin[:done], "com": com[:done], "feet": np.array(keys)}
+           "penetration_m": penetration[:done], "support_margin_m": margin[:done], "com": com[:done], "com_rel_ankle_x_m": (com[:, 0] - ankle_x)[:done], "feet": np.array(keys)}
     return raw, outcome, done, closure_err
 
 
@@ -324,6 +364,9 @@ def run_scenario(scn: dict, *, model_path=None, snapshot_path=None, meta_path=No
         model.opt.disableflags |= int(mj.mjtDisableBit.mjDSBL_CONTACT)
     data = mj.MjData(model)
     mj.mj_forward(model, data)
+    lean = None
+    if scn.get("pose"):
+        lean = _apply_pose(mj, model, data, scn["pose"])
     params = {**(scn.get("params") or {}), "seed": scn["seed"]}
     ctrl.reset(model, data, params)
 
@@ -371,6 +414,14 @@ def run_scenario(scn: dict, *, model_path=None, snapshot_path=None, meta_path=No
         diagnostics["penetration_max_run_m"] = float(raw["penetration_m"].max())
         if outcome != "completed":
             diagnostics["ended_at_s"] = done * dt_
+    if lean is not None:
+        diagnostics["lean_angle_deg"] = float(np.degrees(lean.lean_rad))
+        diagnostics["com_offset_commanded_m"] = float(scn["pose"]["com_x_rel_ankle_m"])
+        diagnostics["com_offset_initial_m"] = float(lean.com_offset_m)
+        if i1 > i0:
+            mean = float(raw["com_rel_ankle_x_m"][i0:i1].mean())
+            diagnostics["com_offset_window_mean_m"] = mean
+            diagnostics["com_sag_m"] = mean - float(scn["pose"]["com_x_rel_ankle_m"])
     if closure_err is not None:
         diagnostics["inverse_closure_max_joint_abs_nm"] = closure_err
         diagnostics["inverse_closure_tolerance_rel"] = INVERSE_CLOSURE_REL
@@ -401,6 +452,7 @@ def run_scenario(scn: dict, *, model_path=None, snapshot_path=None, meta_path=No
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="fy run", description="Run a scenario and write its run record.")
     ap.add_argument("scenario", help="name of a file in sim/scenarios/ (without .yaml)")
+    ap.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="override a scenario value, e.g. pose.com_x_rel_ankle_m=0.02 (recorded in the summary)")
     ap.add_argument("--scenarios-dir", help=argparse.SUPPRESS)
     ap.add_argument("--controllers-dir", help=argparse.SUPPRESS)
     ap.add_argument("--model", help=argparse.SUPPRESS)
@@ -409,7 +461,7 @@ def main(argv=None) -> int:
     ap.add_argument("--runs-dir", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
     try:
-        scn = load_scenario(args.scenario, args.scenarios_dir)
+        scn = apply_overrides(load_scenario(args.scenario, args.scenarios_dir), args.set)
         result = run_scenario(check_scenario(scn), model_path=args.model, snapshot_path=args.snapshot, meta_path=args.meta,
                               runs_dir=args.runs_dir, controllers_dir=args.controllers_dir)
     except (ScenarioError, StaleModelError, runrecord.RecordError) as e:

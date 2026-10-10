@@ -390,6 +390,36 @@ class RecordContent(unittest.TestCase):
         self.assertIsNotNone(joint["limit_hit_fraction"])
 
 
+class Overrides(unittest.TestCase):
+    def test_set_overrides_a_nested_value_parsed_as_yaml(self):
+        s = simrun.apply_overrides({"pose": {"com_x_rel_ankle_m": 0.0}, "seed": 0}, ["pose.com_x_rel_ankle_m=0.02", "seed=3", "options.verify_inverse=true"])
+        self.assertEqual(s["pose"]["com_x_rel_ankle_m"], 0.02)
+        self.assertEqual(s["seed"], 3)
+        self.assertIs(s["options"]["verify_inverse"], True)
+
+    def test_original_is_not_modified_and_bad_syntax_is_an_error(self):
+        base = {"pose": {"a": 1}}
+        simrun.apply_overrides(base, ["pose.a=2"])
+        self.assertEqual(base["pose"]["a"], 1)
+        with self.assertRaises(simrun.ScenarioError):
+            simrun.apply_overrides(base, ["no_equals_sign"])
+
+    def test_override_is_recorded_in_the_summary_params(self):
+        ws = Workspace()
+        self.addCleanup(ws.cleanup)
+        scn = simrun.apply_overrides(scenario(), ["params.gain=7"])
+        rec = simrun.run_scenario(scn, **ws.kwargs(Sinusoid())).record
+        self.assertEqual(rec["scenario"]["params"]["params"]["gain"], 7)
+
+    def test_pose_needs_feet_with_ankle_joints(self):
+        ws = Workspace()
+        self.addCleanup(ws.cleanup)
+        scn = scenario(support="ground", drive="controller", window={"start_s": 3.0, "end_s": 4.0}, pose={"com_x_rel_ankle_m": 0.0})
+        with self.assertRaises(simrun.ScenarioError):
+            simrun.run_scenario(scn, **ws.kwargs(PDHold()))
+        self.assertFalse(ws.runs.exists())
+
+
 class ScenarioFiles(unittest.TestCase):
     def test_missing_required_key_is_an_error(self):
         for key in ("name", "support", "drive", "duration_s", "window", "seed"):

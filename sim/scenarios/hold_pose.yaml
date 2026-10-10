@@ -1,5 +1,11 @@
-# hold_pose: ideal-torque PD holds the neutral standing pose on the floor (forward dynamics, applied torque).
-# Settle for 2 s, then measure the static standing loads for 1 s.
+# hold_pose: ideal-torque PD holds a standing pose on the floor (forward dynamics, applied torque).
+# Settle for 7 s, then measure the static standing loads for 1 s.
+#
+# The pose is the rigid lean about the ankle (sim/scripts/leanpose.py) that puts the whole-body CoM
+# pose.com_x_rel_ankle_m in front of the ankle; every other joint is neutral. The neutral pose itself has no
+# static equilibrium (CoM 40 mm behind the ankle, see notebook/2026-10-10-stage1-findings.md). The default 0.0 is
+# a design parameter, not a measurement: the standing ankle torque is a function of it. Override from the command
+# line with `fy run hold_pose --set pose.com_x_rel_ankle_m=0.02`; the override is recorded in the summary.
 #
 # The timestep is overridden from the model's 0.002 s to 0.0002 s: the ankle and wrist joints are light and a
 # stiff explicit PD on qfrc_applied is unstable at 0.002 s (it diverged at 0.002 s and at 0.0005 s with kp = 2000).
@@ -10,14 +16,16 @@ seed: 0
 support: ground
 drive: controller
 controller: {name: pd_hold, version: "1"}
-duration_s: 3.0
-window: {start_s: 2.0, end_s: 3.0}
+duration_s: 8.0
+window: {start_s: 7.0, end_s: 8.0}
 options:
   timestep_s: 0.0002
   integrator: euler
   verify_inverse: true
+pose: {com_x_rel_ankle_m: 0.0}
 fall: {pelvis_height_fraction: 0.6, trunk_tilt_deg: 45.0}
 params:
   kp_nm_per_rad: 2000.0
-  damping_ratio: 1.0
+  damping_ratio: 1.5  # the body sways about the ankles as an inverted pendulum with almost no damping at 1.0 (about 0.01 of
+  #                     critical for the whole body); the sway then outlives any sensible settle time. 2.0 and 3.0 diverged.
   stability_cap: 0.25

@@ -145,6 +145,17 @@ class Digest(unittest.TestCase):
         for word in ("foot_right", "330", "support margin", "check.a.b"):
             self.assertIn(word, text)
 
+    def test_shows_the_pose_lean_angle_com_offset_and_sag(self):
+        rec = summary("run.20261002-0900-hold", "hold", diagnostics={
+            "lean_angle_deg": 2.6077, "com_offset_commanded_m": 0.0, "com_offset_window_mean_m": -0.0109, "com_sag_m": -0.0109})
+        rec["scenario"]["params"]["pose"] = {"com_x_rel_ankle_m": 0.0}
+        line = next(l for l in rp.digest([rec]).splitlines() if l.startswith("Pose:"))
+        for text in ("com_x_rel_ankle_m 0.0", "lean angle 2.608 deg", "window-mean CoM offset -10.9 mm", "sag -10.9 mm"):
+            self.assertIn(text, line)
+
+    def test_no_pose_line_without_a_pose(self):
+        self.assertFalse(any(l.startswith("Pose:") for l in rp.digest(self.two()).splitlines()))
+
     def test_first_run_has_no_delta(self):
         text = rp.digest(self.two()[:1])
         row = next(l for l in text.splitlines() if l.startswith("| hip_fe_right "))

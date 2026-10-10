@@ -266,6 +266,12 @@ def digest(summaries, current_model_sha=None) -> str:
             lines.append("")
             lines.append("Skipped: " + ", ".join(f"{k} ({v})" for k, v in sorted(s["skipped"].items())))
         lines += [""] + _contacts_lines(s)
+        pose = s["scenario"]["params"].get("pose")
+        diag = s.get("diagnostics", {})
+        if pose and "lean_angle_deg" in diag:
+            lines.append("Pose: " + ", ".join(f"{k} {v}" for k, v in sorted(pose.items())) + f"; lean angle {diag['lean_angle_deg']:.3f} deg"
+                         + (f"; window-mean CoM offset {diag['com_offset_window_mean_m'] * 1000:.1f} mm; sag {diag['com_sag_m'] * 1000:.1f} mm"
+                            if "com_sag_m" in diag else "; no CoM offset measured (the run ended before its window)"))
         lines += [f"- {k}: {v:.6g}" if isinstance(v, float) else f"- {k}: {v}" for k, v in sorted(s.get("diagnostics", {}).items())]
         lines += ["", _checks_line(s), ""]
     return _cap(lines)

@@ -31,7 +31,7 @@
 
                     <body name="foot_right" pos="0 0 -0.406965022422">
                         <inertial pos="0.04455 -0.006435 -0.03597" mass="0.65" fullinertia="0.000511421625 0.002167790625 0.002293434 -6.37065e-05 -0.0001769625 2.8314e-05"/>
-                        <geom type="box" pos="0.04125 0 -0.03135" size="0.0825 0.050 0.03135" friction="1.0 0.005 0.0001" condim="3" rgba="0.82 0.71 0.55 1.0"/> <!--sole on the floor at neutral. extend condim to 4 for foot turning--> <!--design choice, no sheet source-->
+                        <geom type="box" pos="0.061875 0 -0.03135" size="0.103125 0.050 0.03135" friction="1.0 0.005 0.0001" condim="3" rgba="0.82 0.71 0.55 1.0"/> <!--sole on the floor at neutral. extend condim to 4 for foot turning--> <!--design choice, no sheet source-->
                         <site name="site_sole_right" pos="0 0 -0.0627"/> <!--ankle joint centre minus the ankle height: the floor at neutral-->
                         <joint name="ankle_pdflex_right" type="hinge" axis="0 -1 0" limited="true" range="-62.1 25"/> <!--pdflex=plantar/dorsiflexion-->
                         <joint name="ankle_ie_right" type="hinge" axis="1 0 0" limited="true" range="-19.2 36.2"/> <!--ie=inversion/eversion-->
@@ -55,7 +55,7 @@
 
                     <body name="foot_left" pos="0 0 -0.406965022422">
                         <inertial pos="0.04455 0.006435 -0.03597" mass="0.65" fullinertia="0.000511421625 0.002167790625 0.002293434 6.37065e-05 -0.0001769625 -2.8314e-05"/>
-                        <geom type="box" pos="0.04125 0 -0.03135" size="0.0825 0.050 0.03135" friction="1.0 0.005 0.0001" condim="3" rgba="0.82 0.71 0.55 1.0"/> <!--sole on the floor at neutral. extend condim to 4 for foot turning--> <!--design choice, no sheet source-->
+                        <geom type="box" pos="0.061875 0 -0.03135" size="0.103125 0.050 0.03135" friction="1.0 0.005 0.0001" condim="3" rgba="0.82 0.71 0.55 1.0"/> <!--sole on the floor at neutral. extend condim to 4 for foot turning--> <!--design choice, no sheet source-->
                         <site name="site_sole_left" pos="0 0 -0.0627"/> <!--ankle joint centre minus the ankle height: the floor at neutral-->
                         <joint name="ankle_pdflex_left" type="hinge" axis="0 -1 0" limited="true" range="-62.1 25"/> <!--pdflex=plantar/dorsiflexion-->
                         <joint name="ankle_ie_left" type="hinge" axis="-1 0 0" limited="true" range="-19.2 36.2"/> <!--ie=inversion/eversion-->

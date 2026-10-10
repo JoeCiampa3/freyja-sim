@@ -687,6 +687,7 @@ CAPSULE_RADII_M = {"thigh": 0.05, "shank": 0.04, "upper_arm": 0.03, "forearm": 0
 KNEE_SPHERE_RADIUS_M = 0.045  # design choice, no sheet source: sphere centred on the knee
 PELVIS_RADIUS_M = 0.055  # design choice, no sheet source
 NECK_RADIUS_M = 0.045  # design choice, no sheet source
+FOOT_REAR_FRACTION = 0.25  # design choice, no sheet source: the box reaches this fraction of the foot length behind the ankle
 HEAD_HALF_HEIGHT_M = 0.095  # design choice, no sheet source: the head is an ellipsoid, top at the vertex
 SHOULDER_RADIUS_M = 0.045  # design choice, no sheet source: shoulder girdle capsule between the shoulder joints
 TRAPEZIUS_RADIUS_M = 0.04  # design choice, no sheet source
@@ -706,7 +707,7 @@ def derive_keys(values: dict) -> dict:
       <abdomen|pelvis|thorax|hand_<s>>_mid_z, _half_z   ellipsoid covering the segment (see HANG_HALF_FACTOR)
       thorax_chest_z, _chest_half_z              upper-chest ellipsoid that fills out the shoulders
       shoulder_radius, trapezius_radius, trapezius_start_z   shoulder girdle and the slope to the neck
-      foot_<s>_box_pos_x / _half_x               foot length / 4 and / 2 (the collision box)
+      foot_<s>_box_pos_x / _half_x               collision box from L/4 behind the ankle to L ahead (centre 3L/8, half 5L/8)
       foot_<s>_box_pos_z / _half_z               sole on the floor: box from the ankle height down to z=0
       foot_<s>_sole_z                            -(ankle height): the sole, for site_sole_<s>
       pelvis_radius                              hip girdle capsule
@@ -722,8 +723,9 @@ def derive_keys(values: dict) -> dict:
         if f"shank_{side}_length" in values:
             out[f"knee_{side}_sphere_radius"] = KNEE_SPHERE_RADIUS_M
         if (L := values.get(f"foot_{side}_length")) is not None:
-            out[f"foot_{side}_box_pos_x"] = L / 4
-            out[f"foot_{side}_box_half_x"] = L / 2
+            rear = FOOT_REAR_FRACTION * L  # behind the ankle
+            out[f"foot_{side}_box_pos_x"] = (L - rear) / 2  # box from -rear to +L (ankle to the metatarsal heads)
+            out[f"foot_{side}_box_half_x"] = (L + rear) / 2
         chain = [values.get(k) for k in ("pelvis_pos_z", f"thigh_{side}_pos_z", f"shank_{side}_pos_z", f"foot_{side}_pos_z")]
         if None not in chain:
             ankle = sum(chain)  # ankle height above the floor in the neutral pose

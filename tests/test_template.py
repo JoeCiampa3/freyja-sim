@@ -15,6 +15,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "sim" / "scripts"))
+sys.path.insert(0, str(REPO / "checks"))
 
 import pre_processor as pp
 
@@ -101,9 +102,13 @@ class DerivedKeys(unittest.TestCase):
     def test_foot_box_follows_foot_length_and_ankle_height(self):
         d = pp.derive_keys({"foot_right_length": 0.165, "foot_left_length": 0.17, "pelvis_pos_z": 0.9,
                             "thigh_right_pos_z": -0.1, "shank_right_pos_z": -0.4, "foot_right_pos_z": -0.35})
-        self.assertAlmostEqual(d["foot_right_box_pos_x"], 0.04125)
-        self.assertAlmostEqual(d["foot_right_box_half_x"], 0.0825)
-        self.assertAlmostEqual(d["foot_left_box_half_x"], 0.085)
+        # box from -L/4 behind the ankle to +L ahead of it: centre 3L/8, half length 5L/8
+        self.assertAlmostEqual(d["foot_right_box_pos_x"], 0.061875, places=9)
+        self.assertAlmostEqual(d["foot_right_box_half_x"], 0.103125, places=9)
+        self.assertAlmostEqual(d["foot_left_box_half_x"], 5 * 0.17 / 8, places=9)
+        for side, L in (("right", 0.165), ("left", 0.17)):
+            self.assertAlmostEqual(d[f"foot_{side}_box_pos_x"] - d[f"foot_{side}_box_half_x"], -L / 4, delta=1e-9)
+            self.assertAlmostEqual(d[f"foot_{side}_box_pos_x"] + d[f"foot_{side}_box_half_x"], L, delta=1e-9)
         self.assertAlmostEqual(d["foot_right_box_half_z"], 0.025)  # ankle 0.05 above the floor
         self.assertAlmostEqual(d["foot_right_box_pos_z"], -0.025)
         self.assertNotIn("foot_left_box_half_z", d)  # left chain not supplied
@@ -235,6 +240,28 @@ class Geometry(unittest.TestCase):
             b, g = body(base, f"foot_{side}").find("geom"), body(big, f"foot_{side}").find("geom")
             self.assertAlmostEqual(floats(g.get("size"))[0], floats(b.get("size"))[0] * 1.05, places=9)
             self.assertAlmostEqual(floats(g.get("pos"))[0], floats(b.get("pos"))[0] * 1.05, places=9)
+
+
+class FootBoxOnTheRealModel(unittest.TestCase):
+    """The committed model: the box reaches the sheet's foot length ahead of the ankle, a quarter of it behind,
+    and the sole stays on the floor."""
+
+    def test_edges_sole_and_floor_contact(self):
+        import mujoco
+        import checklib
+        import mjcf_checks  # noqa: F401
+        ctx = checklib.Context.from_files()
+        m, d = ctx.model, ctx.data
+        L = ctx.snapshot["foot_right_length"]
+        for side in ("right", "left"):
+            b = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, f"foot_{side}")
+            g = next(g for g in range(m.ngeom) if m.geom_bodyid[g] == b)
+            x0, half = d.geom_xpos[g][0] - d.xpos[b][0], m.geom_size[g][0]
+            self.assertAlmostEqual(x0 - half, -L / 4, delta=1e-9)
+            self.assertAlmostEqual(x0 + half, L, delta=1e-9)
+            self.assertAlmostEqual(d.geom_xpos[g][2] - m.geom_size[g][2], 0.0, delta=1e-9)  # sole at z = 0
+        (r,) = [x for x in checklib.call(checklib.REGISTRY["check.mjcf.floor_contact"], ctx)]
+        self.assertEqual(r.status, checklib.PASS, r.message)
 
 
 class NeutralPose(unittest.TestCase):
